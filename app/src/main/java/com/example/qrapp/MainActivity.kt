@@ -8,7 +8,7 @@ import com.example.qrapp.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityMainBinding
     private lateinit var navController: NavController
@@ -20,11 +20,16 @@ class MainActivity : AppCompatActivity(){
 
         init()
 
+        b.toolbarHeader.tvTitle.text = "Lorem"
+
+
     }
 
     private fun init() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.navHost) as NavHostFragment
         navController = navHostFragment.navController
+
+        b.bottomNavigation.itemIconTintList = null
     }
 }
