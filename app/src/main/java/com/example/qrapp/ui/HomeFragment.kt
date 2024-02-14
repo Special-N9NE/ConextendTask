@@ -17,6 +17,7 @@ import com.example.qrapp.data.model.Product
 import com.example.qrapp.databinding.FragmentHomeBinding
 import com.example.qrapp.ui.adapter.ProductsAdapter
 import com.example.qrapp.ui.viewModel.HomeViewModel
+import com.example.qrapp.utils.EventObserver
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -58,7 +59,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setClicks()
-
         setObservers()
 
     }
@@ -68,6 +68,9 @@ class HomeFragment : Fragment() {
         viewModel.ldItems.observe(viewLifecycleOwner) {
             checkForItems(it)
         }
+        viewModel.ldError.observe(viewLifecycleOwner, EventObserver {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+        })
     }
 
     private fun checkForItems(items: List<Product>) {
@@ -79,7 +82,7 @@ class HomeFragment : Fragment() {
                 b.gEmpty.visibility = View.GONE
                 b.rvProducts.visibility = View.VISIBLE
 
-                b.rvProducts.adapter = ProductsAdapter(it)
+                b.rvProducts.adapter = ProductsAdapter(it.reversed())
             }
         }
     }
