@@ -5,4 +5,7 @@
     <string name="ScanText">Scan a QR code to add item to the list</string>
     <string name="tag_sn">Tag SN</string>
     <string name="name">Name</string>
+    <string name="scan">Just place your camera on \n the QRcode to be read</string>
+    <string name="placeCameraText">Just place your camera on the QR code to be read</string>
+    <string name="gallery">Gallery</string>
 </resources>

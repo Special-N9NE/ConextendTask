@@ -48,10 +48,10 @@ kapt {
     correctErrorTypes = true
 }
 dependencies {
+    implementation("com.github.yuriy-budiyev:code-scanner:2.3.0")
+
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
-
-    implementation("io.github.g00fy2.quickie:quickie-bundled:1.9.0")
 
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
