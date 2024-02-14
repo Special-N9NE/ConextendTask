@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.qrapp.R
+import com.example.qrapp.data.model.Filter
+import com.example.qrapp.data.model.FilterType
 import com.example.qrapp.data.model.Product
 import com.example.qrapp.data.repo.AppRepoImpl
 import com.example.qrapp.utils.Event
@@ -23,10 +25,11 @@ class HomeViewModel @Inject constructor(
     val ldItems = MutableLiveData<List<Product>>()
     private var items = mutableListOf<Product>()
 
-    init {
-        getProducts()
-    }
-
+    val filterItems = listOf(
+        Filter("All", true, FilterType.ALL),
+        Filter("On", false, FilterType.ON),
+        Filter("Off", false, FilterType.OFF),
+    )
     private val names = listOf(
         "Watch", "Car", "Phone", "Laptop"
     )
@@ -36,6 +39,11 @@ class HomeViewModel @Inject constructor(
         R.drawable.i3,
         R.drawable.i4,
     )
+
+    init {
+        getProducts()
+    }
+
 
     fun getProducts() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -73,4 +81,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun filter(filter: FilterType) {
+        when (filter) {
+            FilterType.ALL -> ldItems.postValue(items)
+            FilterType.ON -> {
+                val result = items.filter { it.isChecked }
+                ldItems.postValue(result)
+            }
+
+            FilterType.OFF -> {
+                val result = items.filter { !it.isChecked }
+                ldItems.postValue(result)
+            }
+        }
+    }
 }

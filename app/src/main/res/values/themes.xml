@@ -15,4 +15,13 @@
         <item name="android:textColor">@color/blackText</item>
         <item name="android:fontFamily">@font/medium</item>
     </style>
+
+    <style name="Spinner" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:background">@drawable/shape_round</item>
+        <item name="android:fontFamily">@font/medium</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:inputType">none</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/blackText</item>
+    </style>
 </resources>
