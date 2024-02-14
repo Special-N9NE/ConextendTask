@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">QrApp</string>
+    <string name="bannerText">You can mark\nall the items\nyou have</string>
+    <string name="scanDescription">You can see the related information by scanning a Qr code</string>
+    <string name="ScanText">Scan a QR code to add item to the list</string>
+    <string name="tag_sn">Tag SN</string>
+    <string name="name">Name</string>
 </resources>
