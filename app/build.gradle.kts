@@ -5,6 +5,8 @@ plugins {
     id("kotlin-android")
     id("kotlin-parcelize")
     id("kotlin-kapt")
+
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -42,8 +44,12 @@ android {
         jvmTarget = "1.8"
     }
 }
-
+kapt {
+    correctErrorTypes = true
+}
 dependencies {
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     implementation("io.github.g00fy2.quickie:quickie-bundled:1.9.0")
 

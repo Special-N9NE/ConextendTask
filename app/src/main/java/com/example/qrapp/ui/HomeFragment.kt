@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.qrapp.databinding.FragmentHomeBinding
 import com.example.qrapp.ui.viewModel.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private lateinit var b: FragmentHomeBinding
