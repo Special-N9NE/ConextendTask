@@ -1,5 +1,6 @@
 package com.example.qrapp.ui
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -22,6 +23,7 @@ import com.example.qrapp.ui.viewModel.HomeViewModel
 import com.example.qrapp.utils.EventObserver
 import com.example.qrapp.utils.FilterClickListener
 import com.example.qrapp.utils.ProductToggleListener
+import com.example.qrapp.utils.isCameraGranted
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -35,6 +37,8 @@ class HomeFragment : Fragment() {
     private var adapterProduct: ProductsAdapter? = null
 
     private var startScannerForResult: ActivityResultLauncher<Intent>? = null
+
+    private var products = listOf<Product>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -108,7 +112,7 @@ class HomeFragment : Fragment() {
 
     private fun setObservers() {
         viewModel.ldItems.observe(viewLifecycleOwner) {
-            list = it
+            products = it
             checkForItems()
         }
         viewModel.ldError.observe(viewLifecycleOwner, EventObserver {
@@ -116,7 +120,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-    var list = listOf<Product>()
 
     private fun checkForItems() {
         if (viewModel.isDatabaseEmpty) {
@@ -127,22 +130,43 @@ class HomeFragment : Fragment() {
             b.rvProducts.visibility = View.VISIBLE
 
             if (adapterProduct == null) {
-                adapterProduct = ProductsAdapter(list.reversed(), object : ProductToggleListener {
-                    override fun onToggle(item: Product) {
-                        viewModel.productToggle(item)
-                    }
-                })
+                adapterProduct =
+                    ProductsAdapter(products.reversed(), object : ProductToggleListener {
+                        override fun onToggle(item: Product) {
+                            viewModel.productToggle(item)
+                        }
+                    })
                 b.rvProducts.adapter = adapterProduct
             } else {
-                adapterProduct!!.updateList(list.reversed())
+                adapterProduct!!.updateList(products.reversed())
             }
         }
     }
 
     private fun setClicks() {
         b.ivScan.setOnClickListener {
-            val intent = Intent(requireActivity(), ScanActivity::class.java)
-            startScannerForResult?.launch(intent)
+            if (requireContext().isCameraGranted()) {
+                openScanner()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                openScanner()
+            } else {
+                Toast.makeText(
+                    requireContext(), "Camera permission denied",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+    private fun openScanner() {
+        val intent = Intent(requireActivity(), ScanActivity::class.java)
+        startScannerForResult?.launch(intent)
     }
 }

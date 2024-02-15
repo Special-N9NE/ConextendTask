@@ -50,26 +50,7 @@ class HomeViewModel @Inject constructor(
         getProducts()
     }
 
-    private fun setItems(): List<Product> {
-
-        val result = mutableListOf<Product>()
-        for (i in 0..5) {
-
-            val random = Random.nextInt(0, 4)
-            result.add(
-                Product(
-                    i.toLong(),
-                    "156165465464",
-                    names[random],
-                    images[random],
-                    i % 2 == 0
-                )
-            )
-        }
-        return result
-    }
-
-    fun getProducts() {
+    private fun getProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getProducts(object : RepoCallback<List<Product>> {
                 override fun onSuccessful(response: List<Product>) {
