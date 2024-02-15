@@ -17,20 +17,26 @@ class AppRepoImpl @Inject constructor(private val db: AppDatabase) : AppRepo, Ba
                 emptyList()
             } else {
                 data.map {
-                    Product(it.sn, it.name, it.image, it.isChecked)
+                    Product(it.id, it.sn, it.name, it.image, it.isChecked)
                 }
             }
         }
     }
 
-    override suspend fun insertProduct(product: Product, callback: RepoCallback<Unit>) {
+    override suspend fun insertProduct(product: Product, callback: RepoCallback<Long>) {
 
         val data = ProductEntity(
-            product.sn, product.name, product.image, product.isChecked
+            product.id, product.sn, product.name, product.image, product.isChecked
         )
 
         runWithTryCatch(callback) {
             db.getDao().insertProduct(data)
+        }
+    }
+
+    override suspend fun toggleProduct(product: Product, callback: RepoCallback<Unit>) {
+        runWithTryCatch(callback) {
+            db.getDao().toggleProduct(product.id!!, product.isChecked)
         }
     }
 

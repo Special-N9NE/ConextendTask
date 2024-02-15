@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.qrapp.R
 import com.example.qrapp.data.model.Product
 import com.example.qrapp.databinding.ItemProductBinding
+import com.example.qrapp.utils.ProductToggleListener
 
 class ProductsAdapter(
-    private var products: List<Product>
+    private var products: List<Product>,
+    val listener: ProductToggleListener
 ) : RecyclerView.Adapter<ProductsAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(private val b: ItemProductBinding) : RecyclerView.ViewHolder(b.root) {
@@ -22,6 +24,11 @@ class ProductsAdapter(
             b.model = item
             b.ivImage.setImageResource(item.image)
             b.tvNumber.text = "$number."
+
+            b.sw.setOnClickListener {
+                item.isChecked = !item.isChecked
+                listener.onToggle(item)
+            }
         }
     }
 
@@ -39,4 +46,10 @@ class ProductsAdapter(
     override fun getItemCount(): Int {
         return products.size
     }
+
+    fun updateList(list: List<Product>) {
+        products = list.toMutableList()
+        notifyDataSetChanged()
+    }
+
 }

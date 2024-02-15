@@ -25,6 +25,12 @@ class HomeViewModel @Inject constructor(
     val ldItems = MutableLiveData<List<Product>>()
     private var items = mutableListOf<Product>()
 
+
+    var isDatabaseEmpty = true
+    var isFilterOpen = false
+    var currentFilter = FilterType.ALL
+
+
     val filterItems = listOf(
         Filter("All", true, FilterType.ALL),
         Filter("On", false, FilterType.ON),
@@ -44,11 +50,32 @@ class HomeViewModel @Inject constructor(
         getProducts()
     }
 
+    private fun setItems(): List<Product> {
+
+        val result = mutableListOf<Product>()
+        for (i in 0..5) {
+
+            val random = Random.nextInt(0, 4)
+            result.add(
+                Product(
+                    i.toLong(),
+                    "156165465464",
+                    names[random],
+                    images[random],
+                    i % 2 == 0
+                )
+            )
+        }
+        return result
+    }
 
     fun getProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getProducts(object : RepoCallback<List<Product>> {
                 override fun onSuccessful(response: List<Product>) {
+
+                    isDatabaseEmpty = response.isEmpty()
+
                     ldItems.postValue(response)
                     items.clear()
                     items = response.toMutableList()
@@ -64,11 +91,12 @@ class HomeViewModel @Inject constructor(
 
     fun addProduct(data: String) {
         val random = Random.nextInt(0, 4)
-        val product = Product(data, names[random], images[random])
+        val product = Product(null, data, names[random], images[random])
 
         viewModelScope.launch(Dispatchers.IO) {
-            repo.insertProduct(product, object : RepoCallback<Unit> {
-                override fun onSuccessful(response: Unit) {
+            repo.insertProduct(product, object : RepoCallback<Long> {
+                override fun onSuccessful(response: Long) {
+                    product.id = response
                     items.add(product)
                     ldItems.postValue(items)
                 }
@@ -81,18 +109,38 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun filter(filter: FilterType) {
-        when (filter) {
-            FilterType.ALL -> ldItems.postValue(items)
-            FilterType.ON -> {
-                val result = items.filter { it.isChecked }
-                ldItems.postValue(result)
-            }
+    fun filter(filter: FilterType, reload: Boolean = true) {
+        currentFilter = filter
 
-            FilterType.OFF -> {
-                val result = items.filter { !it.isChecked }
-                ldItems.postValue(result)
-            }
+
+        val result = when (filter) {
+            FilterType.ALL -> items
+            FilterType.ON -> items.filter { it.isChecked }
+            FilterType.OFF -> items.filter { !it.isChecked }
+        }
+
+        if (reload)
+            ldItems.postValue(result)
+    }
+
+    fun productToggle(item: Product) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.toggleProduct(item, object : RepoCallback<Unit> {
+                override fun onSuccessful(response: Unit) {
+
+                    items.forEach {
+                        if (item.id == it.id) {
+                            it.isChecked = item.isChecked
+                        }
+                    }
+
+                    filter(currentFilter, currentFilter != FilterType.ALL)
+                }
+
+                override fun onError(error: String) {
+                    ldError.postValue(Event(error))
+                }
+            })
         }
     }
 }

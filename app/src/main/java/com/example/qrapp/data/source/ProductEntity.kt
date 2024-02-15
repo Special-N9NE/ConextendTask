@@ -12,12 +12,4 @@ data class ProductEntity(
     @ColumnInfo val name: String,
     @ColumnInfo val image: Int,
     @ColumnInfo var isChecked: Boolean
-) {
-    constructor(sn: String, name: String, image: Int, isChecked: Boolean) : this(
-        null,
-        sn,
-        name,
-        image,
-        isChecked
-    )
-}
+)

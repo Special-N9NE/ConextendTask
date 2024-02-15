@@ -21,6 +21,7 @@ import com.example.qrapp.ui.adapter.ProductsAdapter
 import com.example.qrapp.ui.viewModel.HomeViewModel
 import com.example.qrapp.utils.EventObserver
 import com.example.qrapp.utils.FilterClickListener
+import com.example.qrapp.utils.ProductToggleListener
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -30,8 +31,8 @@ class HomeFragment : Fragment() {
     private lateinit var b: FragmentHomeBinding
     private val viewModel: HomeViewModel by viewModels()
 
-    private var isFilterOpen = false
     lateinit var adapterFilter: FilterAdapter
+    private var adapterProduct: ProductsAdapter? = null
 
     private var startScannerForResult: ActivityResultLauncher<Intent>? = null
 
@@ -99,31 +100,41 @@ class HomeFragment : Fragment() {
     }
 
     private fun toggleFilterDialog() {
-        b.gFilterItems.visibility = if (isFilterOpen) View.GONE else View.VISIBLE
-        isFilterOpen = !isFilterOpen
+        b.gFilterItems.visibility = if (viewModel.isFilterOpen) View.GONE else View.VISIBLE
+        viewModel.isFilterOpen = !viewModel.isFilterOpen
         b.ivDropDown.rotation = b.ivDropDown.rotation + 180
     }
 
 
     private fun setObservers() {
         viewModel.ldItems.observe(viewLifecycleOwner) {
-            checkForItems(it)
+            list = it
+            checkForItems()
         }
         viewModel.ldError.observe(viewLifecycleOwner, EventObserver {
             Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
         })
     }
 
-    private fun checkForItems(items: List<Product>) {
-        items.let {
-            if (it.isEmpty()) {
-                b.gEmpty.visibility = View.VISIBLE
-                b.rvProducts.visibility = View.GONE
-            } else {
-                b.gEmpty.visibility = View.GONE
-                b.rvProducts.visibility = View.VISIBLE
+    var list = listOf<Product>()
 
-                b.rvProducts.adapter = ProductsAdapter(it.reversed())
+    private fun checkForItems() {
+        if (viewModel.isDatabaseEmpty) {
+            b.gEmpty.visibility = View.VISIBLE
+            b.rvProducts.visibility = View.GONE
+        } else {
+            b.gEmpty.visibility = View.GONE
+            b.rvProducts.visibility = View.VISIBLE
+
+            if (adapterProduct == null) {
+                adapterProduct = ProductsAdapter(list.reversed(), object : ProductToggleListener {
+                    override fun onToggle(item: Product) {
+                        viewModel.productToggle(item)
+                    }
+                })
+                b.rvProducts.adapter = adapterProduct
+            } else {
+                adapterProduct!!.updateList(list.reversed())
             }
         }
     }
